@@ -14,6 +14,7 @@ import {
   Wallet,
   Idl,
   web3,
+  utils,
 } from "@project-serum/anchor";
 import staking_options_idl from "./staking_options_idl.json";
 
@@ -46,6 +47,7 @@ export class StakingOptions {
       commitment: "finalized",
     };
 
+    // Public key and payer not actually needed since this does not send transactions.
     const wallet: Wallet = {
       publicKey: new PublicKey("4yx1NJ4Vqf2zT1oVLk4SySBhhDJXmXFt88ncm4gPxtL7"),
       signAllTransactions: async (txs) => txs,
@@ -63,37 +65,51 @@ export class StakingOptions {
    * @param
    * @returns
    */
-  public async createConfigInstruction() {
+  public async createConfigInstruction(
+    optionExpiration: number,
+    subscriptionPeriodEnd: number,
+    numTokens: number,
+    lotSize: number,
+    name: string,
+    authority: PublicKey,
+    baseMint: PublicKey,
+    baseAccount: PublicKey,
+    quoteMint: PublicKey,
+    quoteAccount: PublicKey
+  ): Promise<web3.TransactionInstruction> {
+    const [state, _stateBump] = await web3.PublicKey.findProgramAddress(
+      [
+        Buffer.from(utils.bytes.utf8.encode("so-config")),
+        Buffer.from(utils.bytes.utf8.encode(name)),
+        baseMint.toBuffer(),
+      ],
+      this.program.programId
+    );
+    const [baseVault, _baseVaultBump] = await web3.PublicKey.findProgramAddress(
+      [
+        Buffer.from(utils.bytes.utf8.encode("so-vault")),
+        Buffer.from(utils.bytes.utf8.encode(name)),
+        baseMint.toBuffer(),
+      ],
+      this.program.programId
+    );
+
     return this.program.instruction.config(
-      new BN(0),
-      new BN(0),
-      new BN(0),
-      new BN(0),
-      "",
+      new BN(optionExpiration),
+      new BN(subscriptionPeriodEnd),
+      new BN(numTokens),
+      new BN(lotSize),
+      name,
       {
         accounts: {
-          authority:
-            this.program.provider.publicKey ||
-            new PublicKey("4yx1NJ4Vqf2zT1oVLk4SySBhhDJXmXFt88ncm4gPxtL7"),
-          soAuthority: new PublicKey(
-            "4yx1NJ4Vqf2zT1oVLk4SySBhhDJXmXFt88ncm4gPxtL7"
-          ),
-          state: new PublicKey("4yx1NJ4Vqf2zT1oVLk4SySBhhDJXmXFt88ncm4gPxtL7"),
-          baseVault: new PublicKey(
-            "4yx1NJ4Vqf2zT1oVLk4SySBhhDJXmXFt88ncm4gPxtL7"
-          ),
-          baseAccount: new PublicKey(
-            "4yx1NJ4Vqf2zT1oVLk4SySBhhDJXmXFt88ncm4gPxtL7"
-          ),
-          baseMint: new PublicKey(
-            "4yx1NJ4Vqf2zT1oVLk4SySBhhDJXmXFt88ncm4gPxtL7"
-          ),
-          quoteAccount: new PublicKey(
-            "4yx1NJ4Vqf2zT1oVLk4SySBhhDJXmXFt88ncm4gPxtL7"
-          ),
-          quoteMint: new PublicKey(
-            "4yx1NJ4Vqf2zT1oVLk4SySBhhDJXmXFt88ncm4gPxtL7"
-          ),
+          authority,
+          soAuthority: authority,
+          state,
+          baseVault,
+          baseAccount,
+          baseMint,
+          quoteAccount,
+          quoteMint,
           tokenProgram: TOKEN_PROGRAM_ID,
           systemProgram: web3.SystemProgram.programId,
           rent: web3.SYSVAR_RENT_PUBKEY,
