@@ -209,7 +209,6 @@ export class StakingOptions {
    */
   public async createAddTokensInstruction(
     amount: number,
-    strike: number,
     name: string,
     authority: PublicKey,
     baseMint: PublicKey,
