@@ -30,7 +30,6 @@ export class StakingOptions {
    * Create a Staking Options object
    *
    * @param rpcUrl The solana cluster endpoint used for the connecton
-   * @param rpcUrl The solana cluster endpoint used for the connecton
    */
   constructor(rpcUrl: string, commitment: Commitment | string = "finalized") {
     this.commitment = commitment as Commitment;
@@ -60,7 +59,7 @@ export class StakingOptions {
     );
   }
 
-  public toBeBytes(x: number) {
+  private toBeBytes(x: number) {
     const y = Math.floor(x / 2 ** 32);
     return Uint8Array.from(
       [y, y << 8, y << 16, y << 24, x, x << 8, x << 16, x << 24].map(
