@@ -1,0 +1,419 @@
+{
+  "version": "0.0.2",
+  "name": "staking_options",
+  "instructions": [
+    {
+      "name": "addTokens",
+      "accounts": [
+        {
+          "name": "authority",
+          "isMut": false,
+          "isSigner": true
+        },
+        {
+          "name": "state",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "baseVault",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "baseAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "numTokensToAdd",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "config",
+      "accounts": [
+        {
+          "name": "authority",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "soAuthority",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "state",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "baseVault",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "baseAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "quoteAccount",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "baseMint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "quoteMint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "rent",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "optionExpiration",
+          "type": "u64"
+        },
+        {
+          "name": "subscriptionPeriodEnd",
+          "type": "u64"
+        },
+        {
+          "name": "numTokens",
+          "type": "u64"
+        },
+        {
+          "name": "lotSize",
+          "type": "u64"
+        },
+        {
+          "name": "soName",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "exercise",
+      "accounts": [
+        {
+          "name": "authority",
+          "isMut": false,
+          "isSigner": true
+        },
+        {
+          "name": "state",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "userSoAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "optionMint",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "userQuoteAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "projectQuoteAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "feeQuoteAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "baseVault",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "userBaseAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        },
+        {
+          "name": "strike",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "initStrike",
+      "accounts": [
+        {
+          "name": "authority",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "state",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "optionMint",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "rent",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "strike",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "issue",
+      "accounts": [
+        {
+          "name": "authority",
+          "isMut": false,
+          "isSigner": true
+        },
+        {
+          "name": "state",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "optionMint",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "userSoAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        },
+        {
+          "name": "strike",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "withdraw",
+      "accounts": [
+        {
+          "name": "authority",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "state",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "baseVault",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "baseAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": []
+    }
+  ],
+  "accounts": [
+    {
+      "name": "State",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "soName",
+            "type": "string"
+          },
+          {
+            "name": "authority",
+            "type": "publicKey"
+          },
+          {
+            "name": "optionsAvailable",
+            "type": "u64"
+          },
+          {
+            "name": "optionExpiration",
+            "type": "u64"
+          },
+          {
+            "name": "subscriptionPeriodEnd",
+            "type": "u64"
+          },
+          {
+            "name": "baseDecimals",
+            "type": "u8"
+          },
+          {
+            "name": "quoteDecimals",
+            "type": "u8"
+          },
+          {
+            "name": "baseMint",
+            "type": "publicKey"
+          },
+          {
+            "name": "quoteMint",
+            "type": "publicKey"
+          },
+          {
+            "name": "quoteAccount",
+            "type": "publicKey"
+          },
+          {
+            "name": "lotSize",
+            "type": "u64"
+          },
+          {
+            "name": "stateBump",
+            "type": "u8"
+          },
+          {
+            "name": "vaultBump",
+            "type": "u8"
+          },
+          {
+            "name": "strikes",
+            "type": {
+              "vec": "u64"
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "WrongMint",
+      "msg": "The mint in the SO state did not match the token type being received"
+    },
+    {
+      "code": 6001,
+      "name": "Expired",
+      "msg": "Expired"
+    },
+    {
+      "code": 6002,
+      "name": "NotYetExpired",
+      "msg": "NotYetExpired"
+    },
+    {
+      "code": 6003,
+      "name": "InvalidState",
+      "msg": "State did not match"
+    },
+    {
+      "code": 6004,
+      "name": "InvalidVault",
+      "msg": "Vault did not match"
+    },
+    {
+      "code": 6005,
+      "name": "InvalidMint",
+      "msg": "Mint did not match"
+    },
+    {
+      "code": 6006,
+      "name": "IncorrectFeeAccount",
+      "msg": "Account receiving fees does not match"
+    },
+    {
+      "code": 6007,
+      "name": "NotEnoughTokens",
+      "msg": "Not enough tokens to issue the SO"
+    }
+  ],
+  "metadata": {
+    "address": "4yx1NJ4Vqf2zT1oVLk4SySBhhDJXmXFt88ncm4gPxtL7"
+  }
+}
