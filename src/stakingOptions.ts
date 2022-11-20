@@ -273,7 +273,7 @@ export class StakingOptions {
   ): Promise<web3.TransactionInstruction> {
     const state = await this.state(name, baseMint);
     const baseVault = await this.baseVault(name, baseMint);
-    return this.program.instruction.exercise({
+    return this.program.instruction.withdraw({
       accounts: {
         authority,
         state,
