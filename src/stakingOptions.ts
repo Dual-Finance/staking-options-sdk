@@ -68,6 +68,51 @@ export class StakingOptions {
     );
   }
 
+  public async state(
+    name: string,
+    baseMint: PublicKey
+  ): Promise<PublicKey> {
+    const [state, _stateBump] = await web3.PublicKey.findProgramAddress(
+      [
+        Buffer.from(utils.bytes.utf8.encode("so-config")),
+        Buffer.from(utils.bytes.utf8.encode(name)),
+        baseMint.toBuffer(),
+      ],
+      this.program.programId
+    );
+    return state;
+  }
+
+  public async soMint(
+    strike: number,
+    name: string,
+    baseMint: PublicKey
+  ): Promise<PublicKey> {
+    const state = await this.state(name, baseMint);
+    const [optionMint, _optionMintBump] =
+      await web3.PublicKey.findProgramAddress(
+        [
+          Buffer.from(utils.bytes.utf8.encode("so-mint")),
+          state.toBuffer(),
+          this.toBeBytes(strike),
+        ],
+        this.program.programId
+      );
+    return optionMint;
+  }
+
+  public async baseVault(name: string, baseMint: PublicKey) {
+  const [baseVault, _baseVaultBump] = await web3.PublicKey.findProgramAddress(
+    [
+      Buffer.from(utils.bytes.utf8.encode("so-vault")),
+      Buffer.from(utils.bytes.utf8.encode(name)),
+      baseMint.toBuffer(),
+    ],
+    this.program.programId
+  );
+  return baseVault;
+  }
+
   /**
    * Create an instruction for config
    */
@@ -83,22 +128,8 @@ export class StakingOptions {
     quoteMint: PublicKey,
     quoteAccount: PublicKey
   ): Promise<web3.TransactionInstruction> {
-    const [state, _stateBump] = await web3.PublicKey.findProgramAddress(
-      [
-        Buffer.from(utils.bytes.utf8.encode("so-config")),
-        Buffer.from(utils.bytes.utf8.encode(name)),
-        baseMint.toBuffer(),
-      ],
-      this.program.programId
-    );
-    const [baseVault, _baseVaultBump] = await web3.PublicKey.findProgramAddress(
-      [
-        Buffer.from(utils.bytes.utf8.encode("so-vault")),
-        Buffer.from(utils.bytes.utf8.encode(name)),
-        baseMint.toBuffer(),
-      ],
-      this.program.programId
-    );
+    const state = await this.state(name, baseMint);
+    const baseVault = await this.baseVault(name, baseMint);
 
     return this.program.instruction.config(
       new BN(optionExpiration),
@@ -133,24 +164,8 @@ export class StakingOptions {
     authority: PublicKey,
     baseMint: PublicKey
   ): Promise<web3.TransactionInstruction> {
-    const [state, _stateBump] = await web3.PublicKey.findProgramAddress(
-      [
-        Buffer.from(utils.bytes.utf8.encode("so-config")),
-        Buffer.from(utils.bytes.utf8.encode(name)),
-        baseMint.toBuffer(),
-      ],
-      this.program.programId
-    );
-
-    const [optionMint, _optionMintBump] =
-      await web3.PublicKey.findProgramAddress(
-        [
-          Buffer.from(utils.bytes.utf8.encode("so-mint")),
-          state.toBuffer(),
-          this.toBeBytes(strike),
-        ],
-        this.program.programId
-      );
+    const state = await this.state(name, baseMint);
+    const optionMint = await this.soMint(strike, name, baseMint);
 
     return this.program.instruction.initStrike(new BN(strike), {
       accounts: {
@@ -175,24 +190,8 @@ export class StakingOptions {
     baseMint: PublicKey,
     userSoAccount: PublicKey
   ): Promise<web3.TransactionInstruction> {
-    const [state, _stateBump] = await web3.PublicKey.findProgramAddress(
-      [
-        Buffer.from(utils.bytes.utf8.encode("so-config")),
-        Buffer.from(utils.bytes.utf8.encode(name)),
-        baseMint.toBuffer(),
-      ],
-      this.program.programId
-    );
-
-    const [optionMint, _optionMintBump] =
-      await web3.PublicKey.findProgramAddress(
-        [
-          Buffer.from(utils.bytes.utf8.encode("so-mint")),
-          state.toBuffer(),
-          this.toBeBytes(strike),
-        ],
-        this.program.programId
-      );
+    const state = await this.state(name, baseMint);
+    const optionMint = await this.soMint(strike, name, baseMint);
 
     return this.program.instruction.issue(new BN(amount), new BN(strike), {
       accounts: {
@@ -214,18 +213,10 @@ export class StakingOptions {
     name: string,
     authority: PublicKey,
     baseMint: PublicKey,
-    baseVault: PublicKey,
     baseAccount: PublicKey
   ): Promise<web3.TransactionInstruction> {
-    const [state, _stateBump] = await web3.PublicKey.findProgramAddress(
-      [
-        Buffer.from(utils.bytes.utf8.encode("so-config")),
-        Buffer.from(utils.bytes.utf8.encode(name)),
-        baseMint.toBuffer(),
-      ],
-      this.program.programId
-    );
-
+    const state = await this.state(name, baseMint);
+    const baseVault = await this.baseVault(name, baseMint);
     return this.program.instruction.addTokens(new BN(amount), new BN(strike), {
       accounts: {
         authority,
@@ -246,31 +237,15 @@ export class StakingOptions {
     name: string,
     authority: PublicKey,
     baseMint: PublicKey,
-    baseVault: PublicKey,
     userSoAccount: PublicKey,
     userQuoteAccount: PublicKey,
     quoteAccount: PublicKey,
     feeQuoteAccount: PublicKey,
     userBaseAccount: PublicKey
   ): Promise<web3.TransactionInstruction> {
-    const [state, _stateBump] = await web3.PublicKey.findProgramAddress(
-      [
-        Buffer.from(utils.bytes.utf8.encode("so-config")),
-        Buffer.from(utils.bytes.utf8.encode(name)),
-        baseMint.toBuffer(),
-      ],
-      this.program.programId
-    );
-
-    const [optionMint, _optionMintBump] =
-      await web3.PublicKey.findProgramAddress(
-        [
-          Buffer.from(utils.bytes.utf8.encode("so-mint")),
-          state.toBuffer(),
-          this.toBeBytes(strike),
-        ],
-        this.program.programId
-      );
+    const state = await this.state(name, baseMint);
+    const optionMint = await this.soMint(strike, name, baseMint);
+    const baseVault = await this.baseVault(name, baseMint);
 
     return this.program.instruction.exercise(new BN(amount), new BN(strike), {
       accounts: {
@@ -298,17 +273,9 @@ export class StakingOptions {
     authority: PublicKey,
     baseMint: PublicKey,
     baseAccount: PublicKey,
-    baseVault: PublicKey
   ): Promise<web3.TransactionInstruction> {
-    const [state, _stateBump] = await web3.PublicKey.findProgramAddress(
-      [
-        Buffer.from(utils.bytes.utf8.encode("so-config")),
-        Buffer.from(utils.bytes.utf8.encode(name)),
-        baseMint.toBuffer(),
-      ],
-      this.program.programId
-    );
-
+    const state = await this.state(name, baseMint);
+    const baseVault = await this.baseVault(name, baseMint);
     return this.program.instruction.exercise(new BN(amount), new BN(strike), {
       accounts: {
         authority,
