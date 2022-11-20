@@ -217,7 +217,7 @@ export class StakingOptions {
   ): Promise<web3.TransactionInstruction> {
     const state = await this.state(name, baseMint);
     const baseVault = await this.baseVault(name, baseMint);
-    return this.program.instruction.addTokens(new BN(amount), new BN(strike), {
+    return this.program.instruction.addTokens(new BN(amount), {
       accounts: {
         authority,
         state,
@@ -267,8 +267,6 @@ export class StakingOptions {
    * Create an instruction for exercise
    */
   public async createWithdrawInstruction(
-    amount: number,
-    strike: number,
     name: string,
     authority: PublicKey,
     baseMint: PublicKey,
@@ -276,7 +274,7 @@ export class StakingOptions {
   ): Promise<web3.TransactionInstruction> {
     const state = await this.state(name, baseMint);
     const baseVault = await this.baseVault(name, baseMint);
-    return this.program.instruction.exercise(new BN(amount), new BN(strike), {
+    return this.program.instruction.exercise({
       accounts: {
         authority,
         state,
