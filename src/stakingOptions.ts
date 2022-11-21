@@ -263,7 +263,7 @@ export class StakingOptions {
   }
 
   /**
-   * Create an instruction for exercise
+   * Create an instruction for withdraw
    */
   public async createWithdrawInstruction(
     name: string,
