@@ -1,7 +1,28 @@
 {
+  "name": "@dual-finance/staking-options",
+  "version": "0.0.7",
+  "description": "Staking Options SDK",
+  "main": "lib/index.js",
+  "author": "",
+  "license": "ISC",
+  "types": "lib/index.d.ts",
+  "homepage": "https://github.com/DualFinance/staking-options",
+  "scripts": {
+    "build": "tsc",
+    "prebuild": "yarn clean",
+    "clean": "rimraf lib",
+    "start": "ts-node main.ts",
+    "lint": "eslint . --ext .ts",
+    "lint:fix": "eslint . --ext .ts --fix",
+    "test": "env TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\" }' mocha --timeout 100000 -r ts-node/register tests/*.test.ts",
+    "prettier": "prettier src/**/*.ts tests/**/*.ts --write"
+  },
   "dependencies": {
     "@project-serum/anchor": "^0.25.0",
     "@solana/spl-token": "^0.3.6",
     "@solana/web3.js": "^1.66.2"
+  },
+  "devDependencies": {
+    "rimraf": "^3.0.2"
   }
 }
