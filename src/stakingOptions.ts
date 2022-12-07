@@ -87,7 +87,7 @@ export class StakingOptions {
 
   public async getState(name: string, baseMint: PublicKey) {
     const state = await this.state(name, baseMint);
-    const stateObj = await this.program.account.state.fetch(state);
+    const stateObj = await this.program.account.state.fetch(state, 'single');
     return stateObj;
   }
 
@@ -124,7 +124,8 @@ export class StakingOptions {
   public async getFeeAccount(mint: PublicKey) {
     const feeAccount = await getAssociatedTokenAddress(
       mint,
-      new PublicKey("7Z36Efbt7a4nLiV7s5bY7J2e4TJ6V9JEKGccsy2od2bE")
+      new PublicKey("7Z36Efbt7a4nLiV7s5bY7J2e4TJ6V9JEKGccsy2od2bE"),
+      true
     );
     return feeAccount;
   }
@@ -230,7 +231,8 @@ export class StakingOptions {
   ): Promise<web3.TransactionInstruction> {
     const baseAccountData: Account = await getAccount(
       this.connection,
-      baseAccount
+      baseAccount,
+      'single'
     );
     const baseMint = baseAccountData.mint;
 
@@ -262,16 +264,18 @@ export class StakingOptions {
   ): Promise<web3.TransactionInstruction> {
     const baseAccountData: Account = await getAccount(
       this.connection,
-      userBaseAccount
+      userBaseAccount,
+      'single'
     );
     const baseMint = baseAccountData.mint;
 
     const state = await this.state(name, baseMint);
-    const stateObj = await this.program.account.state.fetch(state);
+    const stateObj = await this.getState(name, baseMint);
 
     const optionMint: PublicKey = (await getAccount(
       this.connection,
-      userSoAccount
+      userSoAccount,
+      'single'
     )).mint;
 
     const baseVault = await this.baseVault(name, baseMint);
@@ -306,7 +310,8 @@ export class StakingOptions {
   ): Promise<web3.TransactionInstruction> {
     const baseAccountData: Account = await getAccount(
       this.connection,
-      baseAccount
+      baseAccount,
+      'single'
     );
     const baseMint = baseAccountData.mint;
 
