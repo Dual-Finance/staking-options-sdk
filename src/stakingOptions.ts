@@ -6,7 +6,12 @@ import {
   Keypair,
   PublicKey,
 } from "@solana/web3.js";
-import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import {
+  Account,
+  getAccount,
+  getAssociatedTokenAddress,
+  TOKEN_PROGRAM_ID,
+} from "@solana/spl-token";
 import {
   AnchorProvider,
   BN,
@@ -68,10 +73,7 @@ export class StakingOptions {
     );
   }
 
-  public async state(
-    name: string,
-    baseMint: PublicKey
-  ): Promise<PublicKey> {
+  public async state(name: string, baseMint: PublicKey): Promise<PublicKey> {
     const [state, _stateBump] = await web3.PublicKey.findProgramAddress(
       [
         Buffer.from(utils.bytes.utf8.encode("so-config")),
@@ -81,6 +83,12 @@ export class StakingOptions {
       this.program.programId
     );
     return state;
+  }
+
+  public async getState(name: string, baseMint: PublicKey) {
+    const state = await this.state(name, baseMint);
+    const stateObj = await this.program.account.state.fetch(state);
+    return stateObj;
   }
 
   public async soMint(
@@ -102,15 +110,23 @@ export class StakingOptions {
   }
 
   public async baseVault(name: string, baseMint: PublicKey) {
-  const [baseVault, _baseVaultBump] = await web3.PublicKey.findProgramAddress(
-    [
-      Buffer.from(utils.bytes.utf8.encode("so-vault")),
-      Buffer.from(utils.bytes.utf8.encode(name)),
-      baseMint.toBuffer(),
-    ],
-    this.program.programId
-  );
-  return baseVault;
+    const [baseVault, _baseVaultBump] = await web3.PublicKey.findProgramAddress(
+      [
+        Buffer.from(utils.bytes.utf8.encode("so-vault")),
+        Buffer.from(utils.bytes.utf8.encode(name)),
+        baseMint.toBuffer(),
+      ],
+      this.program.programId
+    );
+    return baseVault;
+  }
+
+  public async getFeeAccount(mint: PublicKey) {
+    const feeAccount = await getAssociatedTokenAddress(
+      mint,
+      new PublicKey("7Z36Efbt7a4nLiV7s5bY7J2e4TJ6V9JEKGccsy2od2bE")
+    );
+    return feeAccount;
   }
 
   /**
@@ -166,7 +182,6 @@ export class StakingOptions {
   ): Promise<web3.TransactionInstruction> {
     const state = await this.state(name, baseMint);
     const optionMint = await this.soMint(strike, name, baseMint);
-
     return this.program.instruction.initStrike(new BN(strike), {
       accounts: {
         authority,
@@ -211,11 +226,17 @@ export class StakingOptions {
     amount: number,
     name: string,
     authority: PublicKey,
-    baseMint: PublicKey,
     baseAccount: PublicKey
   ): Promise<web3.TransactionInstruction> {
+    const baseAccountData: Account = await getAccount(
+      this.connection,
+      baseAccount
+    );
+    const baseMint = baseAccountData.mint;
+
     const state = await this.state(name, baseMint);
     const baseVault = await this.baseVault(name, baseMint);
+
     return this.program.instruction.addTokens(new BN(amount), {
       accounts: {
         authority,
@@ -235,16 +256,29 @@ export class StakingOptions {
     strike: number,
     name: string,
     authority: PublicKey,
-    baseMint: PublicKey,
     userSoAccount: PublicKey,
     userQuoteAccount: PublicKey,
-    quoteAccount: PublicKey,
-    feeQuoteAccount: PublicKey,
     userBaseAccount: PublicKey
   ): Promise<web3.TransactionInstruction> {
+    const baseAccountData: Account = await getAccount(
+      this.connection,
+      userBaseAccount
+    );
+    const baseMint = baseAccountData.mint;
+
     const state = await this.state(name, baseMint);
-    const optionMint = await this.soMint(strike, name, baseMint);
+    const stateObj = await this.program.account.state.fetch(state);
+
+    const optionMint: PublicKey = (await getAccount(
+      this.connection,
+      userSoAccount
+    )).mint;
+
     const baseVault = await this.baseVault(name, baseMint);
+
+    const quoteAccount: PublicKey = stateObj.quoteAccount;
+    const quoteMint: PublicKey = stateObj.quoteMint;
+    const feeQuoteAccount = await this.getFeeAccount(quoteMint);
 
     return this.program.instruction.exercise(new BN(amount), new BN(strike), {
       accounts: {
@@ -268,11 +302,17 @@ export class StakingOptions {
   public async createWithdrawInstruction(
     name: string,
     authority: PublicKey,
-    baseMint: PublicKey,
-    baseAccount: PublicKey,
+    baseAccount: PublicKey
   ): Promise<web3.TransactionInstruction> {
+    const baseAccountData: Account = await getAccount(
+      this.connection,
+      baseAccount
+    );
+    const baseMint = baseAccountData.mint;
+
     const state = await this.state(name, baseMint);
     const baseVault = await this.baseVault(name, baseMint);
+
     return this.program.instruction.withdraw({
       accounts: {
         authority,
