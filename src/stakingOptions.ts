@@ -147,8 +147,6 @@ export class StakingOptions {
     const state = await this.state(name, baseMint);
     const baseVault = await this.baseVault(name, baseMint);
 
-    // TODO: Compute the baseAccount and quoteAccount for the user
-
     return this.program.instruction.config(
       new BN(optionExpiration),
       new BN(subscriptionPeriodEnd),
