@@ -121,6 +121,14 @@ export class StakingOptions {
     return baseVault;
   }
 
+  public async getFeeAccount(mint: PublicKey) {
+    const feeAccount = await getAssociatedTokenAddress(
+      mint,
+      new PublicKey("7Z36Efbt7a4nLiV7s5bY7J2e4TJ6V9JEKGccsy2od2bE")
+    );
+    return feeAccount;
+  }
+
   /**
    * Create an instruction for config
    */
@@ -138,6 +146,8 @@ export class StakingOptions {
   ): Promise<web3.TransactionInstruction> {
     const state = await this.state(name, baseMint);
     const baseVault = await this.baseVault(name, baseMint);
+
+    // TODO: Compute the baseAccount and quoteAccount for the user
 
     return this.program.instruction.config(
       new BN(optionExpiration),
@@ -270,11 +280,7 @@ export class StakingOptions {
 
     const quoteAccount: PublicKey = stateObj.quoteAccount;
     const quoteMint: PublicKey = stateObj.quoteMint;
-
-    const feeQuoteAccount = await getAssociatedTokenAddress(
-      quoteMint,
-      new PublicKey("7Z36Efbt7a4nLiV7s5bY7J2e4TJ6V9JEKGccsy2od2bE")
-    );
+    const feeQuoteAccount = await this.getFeeAccount(quoteMint);
 
     return this.program.instruction.exercise(new BN(amount), new BN(strike), {
       accounts: {
