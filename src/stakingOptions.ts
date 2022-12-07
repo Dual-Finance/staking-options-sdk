@@ -253,8 +253,8 @@ export class StakingOptions {
    */
   public async createExerciseInstruction(
     amount: number,
-    name: string,
     strike: number,
+    name: string,
     authority: PublicKey,
     userSoAccount: PublicKey,
     userQuoteAccount: PublicKey,
