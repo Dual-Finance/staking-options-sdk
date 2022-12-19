@@ -1,0 +1,23 @@
+name: Lint
+on:
+  push:
+    branches: main
+  pull_request:
+
+env:
+  CARGO_TERM_COLOR: always
+
+defaults:
+  run:
+    working-directory: ./
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Install eslint
+        run: yarn install
+      - name: Run ESLint on test code
+        run: yarn run eslint  --ignore-path .gitignore --ext .ts tests/*
