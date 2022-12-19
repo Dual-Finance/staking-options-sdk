@@ -20,4 +20,4 @@ jobs:
       - name: Install eslint
         run: yarn install
       - name: Run ESLint on test code
-        run: yarn run eslint  --ignore-path .gitignore --ext .ts tests/*
+        run: yarn run eslint  --ignore-path .gitignore --ext .ts src/*
