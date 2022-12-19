@@ -12,8 +12,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Ls
-        run: ls
+      - name: Update working dir
+        run: cd ../
       - name: Install eslint
         run: yarn install
       - name: Run ESLint
