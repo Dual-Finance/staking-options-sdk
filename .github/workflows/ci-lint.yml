@@ -6,14 +6,16 @@ on:
 env:
   CARGO_TERM_COLOR: always
 
+defaults:
+  run:
+    working-directory: ./
+
 jobs:
   lint:
     name: Lint
     runs-on: ubuntu-latest
 
     steps:
-      - name: Update working dir
-        run: cd ../
       - name: Install eslint
         run: yarn install
       - name: Run ESLint
