@@ -15,9 +15,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - run: ls
-      - run: pwd
-
+      - uses: actions/checkout@v2
       - name: Install eslint
         run: yarn install
       - name: Run ESLint
