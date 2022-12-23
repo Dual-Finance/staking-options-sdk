@@ -5,13 +5,13 @@ import {
   ConnectionConfig,
   Keypair,
   PublicKey,
-} from "@solana/web3.js";
+} from '@solana/web3.js';
 import {
   Account,
   getAccount,
   getAssociatedTokenAddress,
   TOKEN_PROGRAM_ID,
-} from "@solana/spl-token";
+} from '@solana/spl-token';
 import {
   AnchorProvider,
   BN,
@@ -20,15 +20,20 @@ import {
   Idl,
   web3,
   utils,
-} from "@project-serum/anchor";
-import staking_options_idl from "./staking_options_idl.json";
+} from '@project-serum/anchor';
+import stakingOptionsIdl from './staking_options_idl.json';
+
+export const STAKING_OPTIONS_PK: PublicKey = new PublicKey('4yx1NJ4Vqf2zT1oVLk4SySBhhDJXmXFt88ncm4gPxtL7');
+export const DUAL_DAO_WALLET_PK: PublicKey = new PublicKey('7Z36Efbt7a4nLiV7s5bY7J2e4TJ6V9JEKGccsy2od2bE');
 
 /**
  * API class with functions to interact with the Staking Options Program using Solana Web3 JS API
  */
 export class StakingOptions {
   private connection: Connection;
+
   private program: Program;
+
   private commitment: Commitment | ConnectionConfig | undefined;
 
   /**
@@ -36,21 +41,21 @@ export class StakingOptions {
    *
    * @param rpcUrl The solana cluster endpoint used for the connecton
    */
-  constructor(rpcUrl: string, commitment: Commitment | string = "finalized") {
+  constructor(rpcUrl: string, commitment: Commitment | string = 'finalized') {
     this.commitment = commitment as Commitment;
     this.connection = new Connection(
       rpcUrl,
-      (this.commitment as Commitment) || "finalized"
+      (this.commitment as Commitment) || 'finalized',
     );
 
     const opts: ConfirmOptions = {
-      preflightCommitment: "finalized",
-      commitment: "finalized",
+      preflightCommitment: 'finalized',
+      commitment: 'finalized',
     };
 
     // Public key and payer not actually needed since this does not send transactions.
     const wallet: Wallet = {
-      publicKey: new PublicKey("4yx1NJ4Vqf2zT1oVLk4SySBhhDJXmXFt88ncm4gPxtL7"),
+      publicKey: STAKING_OPTIONS_PK,
       signAllTransactions: async (txs) => txs,
       signTransaction: async (tx) => tx,
       payer: new Keypair(),
@@ -58,74 +63,92 @@ export class StakingOptions {
 
     const provider = new AnchorProvider(this.connection, wallet, opts);
     this.program = new Program(
-      staking_options_idl as Idl,
-      new PublicKey("4yx1NJ4Vqf2zT1oVLk4SySBhhDJXmXFt88ncm4gPxtL7"),
-      provider
+      stakingOptionsIdl as Idl,
+      STAKING_OPTIONS_PK,
+      provider,
     );
   }
 
-  private toBeBytes(x: number) {
+  /**
+   * Convert a number to bytes in the format that is used in ata seeds.
+   */
+  private static toBeBytes(x: number) {
     const y = Math.floor(x / 2 ** 32);
     return Uint8Array.from(
       [y, y << 8, y << 16, y << 24, x, x << 8, x << 16, x << 24].map(
-        (z) => z >>> 24
-      )
+        (z) => z >>> 24,
+      ),
     );
   }
 
+  /**
+   * Get the public key for the staking options state.
+   */
   public async state(name: string, baseMint: PublicKey): Promise<PublicKey> {
     const [state, _stateBump] = await web3.PublicKey.findProgramAddress(
       [
-        Buffer.from(utils.bytes.utf8.encode("so-config")),
+        Buffer.from(utils.bytes.utf8.encode('so-config')),
         Buffer.from(utils.bytes.utf8.encode(name)),
         baseMint.toBuffer(),
       ],
-      this.program.programId
+      this.program.programId,
     );
     return state;
   }
 
+  /**
+   * Get the state object for a staking options state.
+   */
   public async getState(name: string, baseMint: PublicKey) {
     const state = await this.state(name, baseMint);
     const stateObj = await this.program.account.state.fetch(state, 'single');
     return stateObj;
   }
 
+  /**
+   * Get the public key for a staking option mint. This is the option token mint.
+   */
   public async soMint(
     strike: number,
     name: string,
-    baseMint: PublicKey
+    baseMint: PublicKey,
   ): Promise<PublicKey> {
     const state = await this.state(name, baseMint);
-    const [optionMint, _optionMintBump] =
-      await web3.PublicKey.findProgramAddress(
-        [
-          Buffer.from(utils.bytes.utf8.encode("so-mint")),
-          state.toBuffer(),
-          this.toBeBytes(strike),
-        ],
-        this.program.programId
-      );
+    const [optionMint, _optionMintBump] = await web3.PublicKey.findProgramAddress(
+      [
+        Buffer.from(utils.bytes.utf8.encode('so-mint')),
+        state.toBuffer(),
+        StakingOptions.toBeBytes(strike),
+      ],
+      this.program.programId,
+    );
     return optionMint;
   }
 
+  /**
+   * Get the public key for a staking option vault. This is where the base tokens
+   * are stored.
+   */
   public async baseVault(name: string, baseMint: PublicKey) {
     const [baseVault, _baseVaultBump] = await web3.PublicKey.findProgramAddress(
       [
-        Buffer.from(utils.bytes.utf8.encode("so-vault")),
+        Buffer.from(utils.bytes.utf8.encode('so-vault')),
         Buffer.from(utils.bytes.utf8.encode(name)),
         baseMint.toBuffer(),
       ],
-      this.program.programId
+      this.program.programId,
     );
     return baseVault;
   }
 
-  public async getFeeAccount(mint: PublicKey) {
+  /**
+   * Get the public key for where fees are accrued.
+   */
+  public static async getFeeAccount(mint: PublicKey) {
     const feeAccount = await getAssociatedTokenAddress(
       mint,
-      new PublicKey("7Z36Efbt7a4nLiV7s5bY7J2e4TJ6V9JEKGccsy2od2bE"),
-      true
+      DUAL_DAO_WALLET_PK,
+      true,
     );
     return feeAccount;
   }
@@ -143,7 +166,7 @@ export class StakingOptions {
     baseMint: PublicKey,
     baseAccount: PublicKey,
     quoteMint: PublicKey,
-    quoteAccount: PublicKey
+    quoteAccount: PublicKey,
   ): Promise<web3.TransactionInstruction> {
     const state = await this.state(name, baseMint);
     const baseVault = await this.baseVault(name, baseMint);
@@ -168,7 +191,7 @@ export class StakingOptions {
           systemProgram: web3.SystemProgram.programId,
           rent: web3.SYSVAR_RENT_PUBKEY,
         },
-      }
+      },
     );
   }
 
@@ -179,7 +202,7 @@ export class StakingOptions {
     strike: number,
     name: string,
     authority: PublicKey,
-    baseMint: PublicKey
+    baseMint: PublicKey,
   ): Promise<web3.TransactionInstruction> {
     const state = await this.state(name, baseMint);
     const optionMint = await this.soMint(strike, name, baseMint);
@@ -204,7 +227,7 @@ export class StakingOptions {
     name: string,
     authority: PublicKey,
     baseMint: PublicKey,
-    userSoAccount: PublicKey
+    userSoAccount: PublicKey,
   ): Promise<web3.TransactionInstruction> {
     const state = await this.state(name, baseMint);
     const optionMint = await this.soMint(strike, name, baseMint);
@@ -227,12 +250,12 @@ export class StakingOptions {
     amount: number,
     name: string,
     authority: PublicKey,
-    baseAccount: PublicKey
+    baseAccount: PublicKey,
   ): Promise<web3.TransactionInstruction> {
     const baseAccountData: Account = await getAccount(
       this.connection,
       baseAccount,
-      'single'
+      'single',
     );
     const baseMint = baseAccountData.mint;
 
@@ -260,12 +283,12 @@ export class StakingOptions {
     authority: PublicKey,
     userSoAccount: PublicKey,
     userQuoteAccount: PublicKey,
-    userBaseAccount: PublicKey
+    userBaseAccount: PublicKey,
   ): Promise<web3.TransactionInstruction> {
     const baseAccountData: Account = await getAccount(
       this.connection,
       userBaseAccount,
-      'single'
+      'single',
     );
     const baseMint = baseAccountData.mint;
 
@@ -275,14 +298,14 @@ export class StakingOptions {
     const optionMint: PublicKey = (await getAccount(
       this.connection,
       userSoAccount,
-      'single'
+      'single',
     )).mint;
 
     const baseVault = await this.baseVault(name, baseMint);
 
-    const quoteAccount: PublicKey = stateObj.quoteAccount;
-    const quoteMint: PublicKey = stateObj.quoteMint;
-    const feeQuoteAccount = await this.getFeeAccount(quoteMint);
+    const { quoteAccount } = stateObj;
+    const { quoteMint } = stateObj;
+    const feeQuoteAccount = await StakingOptions.getFeeAccount(quoteMint);
 
     return this.program.instruction.exercise(new BN(amount), new BN(strike), {
       accounts: {
@@ -306,12 +329,12 @@ export class StakingOptions {
   public async createWithdrawInstruction(
     name: string,
     authority: PublicKey,
-    baseAccount: PublicKey
+    baseAccount: PublicKey,
   ): Promise<web3.TransactionInstruction> {
     const baseAccountData: Account = await getAccount(
       this.connection,
       baseAccount,
-      'single'
+      'single',
     );
     const baseMint = baseAccountData.mint;
 
