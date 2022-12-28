@@ -1,5 +1,5 @@
 {
-  "version": "0.0.2",
+  "version": "0.0.5",
   "name": "staking_options",
   "instructions": [
     {
@@ -36,7 +36,8 @@
           "name": "numTokensToAdd",
           "type": "u64"
         }
-      ]
+      ],
+      "returns": null
     },
     {
       "name": "config",
@@ -118,7 +119,8 @@
           "name": "soName",
           "type": "string"
         }
-      ]
+      ],
+      "returns": null
     },
     {
       "name": "exercise",
@@ -183,7 +185,8 @@
           "name": "strike",
           "type": "u64"
         }
-      ]
+      ],
+      "returns": null
     },
     {
       "name": "initStrike",
@@ -224,7 +227,55 @@
           "name": "strike",
           "type": "u64"
         }
-      ]
+      ],
+      "returns": null
+    },
+    {
+      "name": "initStrikeWithPayer",
+      "accounts": [
+        {
+          "name": "authority",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "payer",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "state",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "optionMint",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "rent",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "strike",
+          "type": "u64"
+        }
+      ],
+      "returns": null
     },
     {
       "name": "issue",
@@ -264,7 +315,8 @@
           "name": "strike",
           "type": "u64"
         }
-      ]
+      ],
+      "returns": null
     },
     {
       "name": "withdraw",
@@ -300,7 +352,8 @@
           "isSigner": false
         }
       ],
-      "args": []
+      "args": [],
+      "returns": null
     }
   ],
   "accounts": [
@@ -412,8 +465,5 @@
       "name": "NotEnoughTokens",
       "msg": "Not enough tokens to issue the SO"
     }
-  ],
-  "metadata": {
-    "address": "4yx1NJ4Vqf2zT1oVLk4SySBhhDJXmXFt88ncm4gPxtL7"
-  }
+  ]
 }
