@@ -159,8 +159,8 @@ export class StakingOptions {
   public async createConfigInstruction(
     optionExpiration: number,
     subscriptionPeriodEnd: number,
-    numTokens: number,
-    lotSize: number,
+    numTokens: BN,
+    lotSize: BN,
     name: string,
     authority: PublicKey,
     baseMint: PublicKey,
@@ -174,8 +174,8 @@ export class StakingOptions {
     return this.program.instruction.config(
       new BN(optionExpiration),
       new BN(subscriptionPeriodEnd),
-      new BN(numTokens),
-      new BN(lotSize),
+      numTokens,
+      lotSize,
       name,
       {
         accounts: {
@@ -199,14 +199,14 @@ export class StakingOptions {
    * Create an instruction for init strike
    */
   public async createInitStrikeInstruction(
-    strike: number,
+    strike: BN,
     name: string,
     authority: PublicKey,
     baseMint: PublicKey,
   ): Promise<web3.TransactionInstruction> {
     const state = await this.state(name, baseMint);
     const optionMint = await this.soMint(strike, name, baseMint);
-    return this.program.instruction.initStrike(new BN(strike), {
+    return this.program.instruction.initStrike(strike, {
       accounts: {
         authority,
         state,
@@ -222,8 +222,8 @@ export class StakingOptions {
    * Create an instruction for issue
    */
   public async createIssueInstruction(
-    amount: number,
-    strike: number,
+    amount: BN,
+    strike: BN,
     name: string,
     authority: PublicKey,
     baseMint: PublicKey,
@@ -232,7 +232,7 @@ export class StakingOptions {
     const state = await this.state(name, baseMint);
     const optionMint = await this.soMint(strike, name, baseMint);
 
-    return this.program.instruction.issue(new BN(amount), new BN(strike), {
+    return this.program.instruction.issue(amount, strike, {
       accounts: {
         authority,
         state,
@@ -247,7 +247,7 @@ export class StakingOptions {
    * Create an instruction for add tokens
    */
   public async createAddTokensInstruction(
-    amount: number,
+    amount: BN,
     name: string,
     authority: PublicKey,
     baseAccount: PublicKey,
@@ -262,7 +262,7 @@ export class StakingOptions {
     const state = await this.state(name, baseMint);
     const baseVault = await this.baseVault(name, baseMint);
 
-    return this.program.instruction.addTokens(new BN(amount), {
+    return this.program.instruction.addTokens(amount, {
       accounts: {
         authority,
         state,
@@ -277,8 +277,8 @@ export class StakingOptions {
    * Create an instruction for exercise
    */
   public async createExerciseInstruction(
-    amount: number,
-    strike: number,
+    amount: BN,
+    strike: BN,
     name: string,
     authority: PublicKey,
     userSoAccount: PublicKey,
@@ -307,7 +307,7 @@ export class StakingOptions {
     const { quoteMint } = stateObj;
     const feeQuoteAccount = await StakingOptions.getFeeAccount(quoteMint);
 
-    return this.program.instruction.exercise(new BN(amount), new BN(strike), {
+    return this.program.instruction.exercise(amount, strike, {
       accounts: {
         authority,
         state,
