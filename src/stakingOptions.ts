@@ -325,6 +325,42 @@ export class StakingOptions {
   }
 
   /**
+   * Create an instruction for exercise for use by GSO
+   */
+  public async createExerciseInstruction2(
+    amount: BN,
+    strike: BN,
+    authority: PublicKey,
+    state: PublicKey,
+    optionMint: PublicKey,
+    userSoAccount: PublicKey,
+    userQuoteAccount: PublicKey,
+    feeQuoteAccount: PublicKey,
+    baseVault: PublicKey,
+    userBaseAccount: PublicKey,
+    soName: string,
+    baseMint: PublicKey
+  ): Promise<web3.TransactionInstruction> {
+    const stateObj = await this.getState(soName, baseMint);
+    const { quoteAccount } = stateObj;
+    // @ts-ignore
+    return this.program.instruction.exercise(amount, strike, {
+      accounts: {
+        authority,
+        state,
+        userSoAccount,
+        optionMint,
+        userQuoteAccount,
+        projectQuoteAccount: quoteAccount,
+        feeQuoteAccount,
+        baseVault,
+        userBaseAccount,
+        tokenProgram: TOKEN_PROGRAM_ID,
+      },
+    });
+  }
+
+  /**
    * Create an instruction for withdraw
    */
   public async createWithdrawInstruction(
