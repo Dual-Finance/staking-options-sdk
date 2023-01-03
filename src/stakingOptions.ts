@@ -339,7 +339,7 @@ export class StakingOptions {
     baseVault: PublicKey,
     userBaseAccount: PublicKey,
     soName: string,
-    baseMint: PublicKey
+    baseMint: PublicKey,
   ): Promise<web3.TransactionInstruction> {
     const stateObj = await this.getState(soName, baseMint);
     const { quoteAccount } = stateObj;
