@@ -63,6 +63,7 @@ export class StakingOptions {
 
     const provider = new AnchorProvider(this.connection, wallet, opts);
     this.program = new Program(
+      // @ts-ignore
       stakingOptionsIdl as Idl,
       STAKING_OPTIONS_PK,
       provider,
