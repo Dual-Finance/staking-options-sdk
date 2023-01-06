@@ -248,7 +248,7 @@ export class StakingOptions {
         state,
         optionMint,
         optionMintMetadataAccount,
-        tokenMetadataProgram: TOKEN_PROGRAM_ID,
+        tokenMetadataProgram: metaplexId,
         systemProgram: web3.SystemProgram.programId,
         rent: web3.SYSVAR_RENT_PUBKEY,
       },
