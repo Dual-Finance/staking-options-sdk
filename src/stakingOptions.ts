@@ -218,7 +218,7 @@ export class StakingOptions {
       },
     });
   }
-  
+
   /**
    * Create an instruction for naming a token. To be called after initStrike.
    */
