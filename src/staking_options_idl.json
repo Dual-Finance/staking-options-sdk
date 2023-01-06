@@ -1,5 +1,5 @@
 {
-  "version": "0.0.5",
+  "version": "0.0.7",
   "name": "staking_options",
   "instructions": [
     {
@@ -36,8 +36,7 @@
           "name": "numTokensToAdd",
           "type": "u64"
         }
-      ],
-      "returns": null
+      ]
     },
     {
       "name": "config",
@@ -119,8 +118,7 @@
           "name": "soName",
           "type": "string"
         }
-      ],
-      "returns": null
+      ]
     },
     {
       "name": "exercise",
@@ -185,8 +183,7 @@
           "name": "strike",
           "type": "u64"
         }
-      ],
-      "returns": null
+      ]
     },
     {
       "name": "initStrike",
@@ -227,8 +224,7 @@
           "name": "strike",
           "type": "u64"
         }
-      ],
-      "returns": null
+      ]
     },
     {
       "name": "initStrikeWithPayer",
@@ -274,8 +270,7 @@
           "name": "strike",
           "type": "u64"
         }
-      ],
-      "returns": null
+      ]
     },
     {
       "name": "issue",
@@ -315,8 +310,53 @@
           "name": "strike",
           "type": "u64"
         }
+      ]
+    },
+    {
+      "name": "nameToken",
+      "accounts": [
+        {
+          "name": "authority",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "state",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "optionMint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "optionMintMetadataAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenMetadataProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "rent",
+          "isMut": false,
+          "isSigner": false
+        }
       ],
-      "returns": null
+      "args": [
+        {
+          "name": "strike",
+          "type": "u64"
+        }
+      ]
     },
     {
       "name": "withdraw",
@@ -352,8 +392,7 @@
           "isSigner": false
         }
       ],
-      "args": [],
-      "returns": null
+      "args": []
     }
   ],
   "accounts": [

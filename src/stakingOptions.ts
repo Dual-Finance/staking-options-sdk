@@ -220,6 +220,41 @@ export class StakingOptions {
   }
 
   /**
+   * Create an instruction for naming a token. To be called after initStrike.
+   */
+  public async createNameTokenInstruction(
+    strike: BN,
+    name: string,
+    authority: PublicKey,
+    baseMint: PublicKey,
+  ): Promise<web3.TransactionInstruction> {
+    const state = await this.state(name, baseMint);
+    const optionMint = await this.soMint(strike, name, baseMint);
+    const metaplexId = new PublicKey('metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s');
+    const [optionMintMetadataAccount, _optionMintMetadataBump] = (
+      await web3.PublicKey.findProgramAddress(
+        [
+          Buffer.from(utils.bytes.utf8.encode('metadata')),
+          metaplexId.toBuffer(),
+          optionMint.toBuffer(),
+        ],
+        metaplexId,
+      ));
+
+    return this.program.instruction.nameToken(strike, {
+      accounts: {
+        authority,
+        state,
+        optionMint,
+        optionMintMetadataAccount,
+        tokenMetadataProgram: TOKEN_PROGRAM_ID,
+        systemProgram: web3.SystemProgram.programId,
+        rent: web3.SYSVAR_RENT_PUBKEY,
+      },
+    });
+  }
+
+  /**
    * Create an instruction for issue
    */
   public async createIssueInstruction(
