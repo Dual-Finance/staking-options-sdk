@@ -1,5 +1,5 @@
 {
-  "version": "0.0.7",
+  "version": "0.0.8",
   "name": "staking_options",
   "instructions": [
     {
@@ -13,17 +13,26 @@
         {
           "name": "state",
           "isMut": true,
-          "isSigner": false
+          "isSigner": false,
+          "docs": [
+            "State holding all the data for the intended stake."
+          ]
         },
         {
           "name": "baseVault",
           "isMut": true,
-          "isSigner": false
+          "isSigner": false,
+          "docs": [
+            "Where the base tokens are going to be held. Controlled by this program."
+          ]
         },
         {
           "name": "baseAccount",
           "isMut": true,
-          "isSigner": false
+          "isSigner": false,
+          "docs": [
+            "Where the additional tokens are coming from."
+          ]
         },
         {
           "name": "tokenProgram",
@@ -44,42 +53,67 @@
         {
           "name": "authority",
           "isMut": true,
-          "isSigner": true
+          "isSigner": true,
+          "docs": [
+            "Does not have to match the authority for the SO State, but it can."
+          ]
         },
         {
           "name": "soAuthority",
           "isMut": false,
-          "isSigner": false
+          "isSigner": false,
+          "docs": [
+            "The authority that will be required for issuing and withdrawing."
+          ]
         },
         {
           "name": "state",
           "isMut": true,
-          "isSigner": false
+          "isSigner": false,
+          "docs": [
+            "State holding all the data for the stake that the staker wants to do."
+          ]
         },
         {
           "name": "baseVault",
           "isMut": true,
-          "isSigner": false
+          "isSigner": false,
+          "docs": [
+            "Where the base tokens are going to be held."
+          ]
         },
         {
           "name": "baseAccount",
           "isMut": true,
-          "isSigner": false
+          "isSigner": false,
+          "docs": [
+            "Where the tokens are coming from."
+          ]
         },
         {
           "name": "quoteAccount",
           "isMut": false,
-          "isSigner": false
+          "isSigner": false,
+          "docs": [
+            "Saved for later. Not used. TokenAccount instead of AccountInfo in order",
+            "to get the anchor type checking."
+          ]
         },
         {
           "name": "baseMint",
           "isMut": false,
-          "isSigner": false
+          "isSigner": false,
+          "docs": [
+            "Mint of base tokens."
+          ]
         },
         {
           "name": "quoteMint",
           "isMut": false,
-          "isSigner": false
+          "isSigner": false,
+          "docs": [
+            "Mint of quote tokens. Needed for storing the number of decimals."
+          ]
         },
         {
           "name": "tokenProgram",
@@ -131,42 +165,66 @@
         {
           "name": "state",
           "isMut": true,
-          "isSigner": false
+          "isSigner": false,
+          "docs": [
+            "State holding all the data for the stake that the staker wants to do."
+          ]
         },
         {
           "name": "userSoAccount",
           "isMut": true,
-          "isSigner": false
+          "isSigner": false,
+          "docs": [
+            "Where the SO are coming from."
+          ]
         },
         {
           "name": "optionMint",
           "isMut": true,
-          "isSigner": false
+          "isSigner": false,
+          "docs": [
+            "Mint is needed to burn the options."
+          ]
         },
         {
           "name": "userQuoteAccount",
           "isMut": true,
-          "isSigner": false
+          "isSigner": false,
+          "docs": [
+            "Where the payment is coming from."
+          ]
         },
         {
           "name": "projectQuoteAccount",
           "isMut": true,
-          "isSigner": false
+          "isSigner": false,
+          "docs": [
+            "Where the payment is going"
+          ]
         },
         {
           "name": "feeQuoteAccount",
           "isMut": true,
-          "isSigner": false
+          "isSigner": false,
+          "docs": [
+            "Where the fee is going"
+          ]
         },
         {
           "name": "baseVault",
           "isMut": true,
-          "isSigner": false
+          "isSigner": false,
+          "docs": [
+            "The base token location for this SO."
+          ]
         },
         {
           "name": "userBaseAccount",
           "isMut": true,
-          "isSigner": false
+          "isSigner": false,
+          "docs": [
+            "Where the base tokens are going."
+          ]
         },
         {
           "name": "tokenProgram",
@@ -293,7 +351,10 @@
         {
           "name": "userSoAccount",
           "isMut": true,
-          "isSigner": false
+          "isSigner": false,
+          "docs": [
+            "Where the options will be sent."
+          ]
         },
         {
           "name": "tokenProgram",
@@ -317,18 +378,29 @@
       "accounts": [
         {
           "name": "authority",
+          "isMut": false,
+          "isSigner": true
+        },
+        {
+          "name": "payer",
           "isMut": true,
           "isSigner": true
         },
         {
           "name": "state",
           "isMut": false,
-          "isSigner": false
+          "isSigner": false,
+          "docs": [
+            "State holding all the data for the stake that the staker wants to do."
+          ]
         },
         {
           "name": "optionMint",
           "isMut": false,
-          "isSigner": false
+          "isSigner": false,
+          "docs": [
+            "Mint of base tokens."
+          ]
         },
         {
           "name": "optionMintMetadataAccount",
@@ -369,17 +441,26 @@
         {
           "name": "state",
           "isMut": true,
-          "isSigner": false
+          "isSigner": false,
+          "docs": [
+            "State holding all the data for the stake that the staker wants to do."
+          ]
         },
         {
           "name": "baseVault",
           "isMut": true,
-          "isSigner": false
+          "isSigner": false,
+          "docs": [
+            "The base token location"
+          ]
         },
         {
           "name": "baseAccount",
           "isMut": true,
-          "isSigner": false
+          "isSigner": false,
+          "docs": [
+            "Where the tokens are getting returned to"
+          ]
         },
         {
           "name": "tokenProgram",
@@ -504,5 +585,8 @@
       "name": "NotEnoughTokens",
       "msg": "Not enough tokens to issue the SO"
     }
-  ]
+  ],
+  "metadata": {
+    "address": "4yx1NJ4Vqf2zT1oVLk4SySBhhDJXmXFt88ncm4gPxtL7"
+  }
 }

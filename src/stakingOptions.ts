@@ -244,6 +244,7 @@ export class StakingOptions {
     return this.program.instruction.nameToken(strike, {
       accounts: {
         authority,
+        payer: authority,
         state,
         optionMint,
         optionMintMetadataAccount,
