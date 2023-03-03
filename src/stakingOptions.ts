@@ -395,24 +395,24 @@ export class StakingOptions {
    * when the recipient account is created in another instruction in this
    * transaction, so we cannot check it onchain to get the mint.
    */
-    public async createWithdrawInstructionWithMint(
-      name: string,
-      authority: PublicKey,
-      baseAccount: PublicKey,
-      baseMint: PublicKey,
-    ): Promise<web3.TransactionInstruction> {
-      const state = await this.state(name, baseMint);
-      const baseVault = await this.baseVault(name, baseMint);
-  
-      return this.program.instruction.withdraw({
-        accounts: {
-          authority,
-          state,
-          baseVault,
-          baseAccount,
-          tokenProgram: TOKEN_PROGRAM_ID,
-          systemProgram: web3.SystemProgram.programId,
-        },
-      });
-    }
+  public async createWithdrawInstructionWithMint(
+    name: string,
+    authority: PublicKey,
+    baseAccount: PublicKey,
+    baseMint: PublicKey,
+  ): Promise<web3.TransactionInstruction> {
+    const state = await this.state(name, baseMint);
+    const baseVault = await this.baseVault(name, baseMint);
+
+    return this.program.instruction.withdraw({
+      accounts: {
+        authority,
+        state,
+        baseVault,
+        baseAccount,
+        tokenProgram: TOKEN_PROGRAM_ID,
+        systemProgram: web3.SystemProgram.programId,
+      },
+    });
+  }
 }
