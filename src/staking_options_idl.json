@@ -1,5 +1,5 @@
 {
-  "version": "0.0.8",
+  "version": "0.0.9",
   "name": "staking_options",
   "instructions": [
     {
@@ -63,7 +63,123 @@
           "isMut": false,
           "isSigner": false,
           "docs": [
-            "The authority that will be required for issuing and withdrawing."
+            "The authority that will be required init strike and withdrawing."
+          ]
+        },
+        {
+          "name": "state",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "State holding all the data for the stake that the staker wants to do."
+          ]
+        },
+        {
+          "name": "baseVault",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "Where the base tokens are going to be held."
+          ]
+        },
+        {
+          "name": "baseAccount",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "Where the tokens are coming from."
+          ]
+        },
+        {
+          "name": "quoteAccount",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "Saved for later. Not used. TokenAccount instead of AccountInfo in order",
+            "to get the anchor type checking."
+          ]
+        },
+        {
+          "name": "baseMint",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "Mint of base tokens."
+          ]
+        },
+        {
+          "name": "quoteMint",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "Mint of quote tokens. Needed for storing the number of decimals."
+          ]
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "rent",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "optionExpiration",
+          "type": "u64"
+        },
+        {
+          "name": "subscriptionPeriodEnd",
+          "type": "u64"
+        },
+        {
+          "name": "numTokens",
+          "type": "u64"
+        },
+        {
+          "name": "lotSize",
+          "type": "u64"
+        },
+        {
+          "name": "soName",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "configV2",
+      "accounts": [
+        {
+          "name": "authority",
+          "isMut": true,
+          "isSigner": true,
+          "docs": [
+            "Does not have to match the authority for the SO State, but it can."
+          ]
+        },
+        {
+          "name": "soAuthority",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "The authority that will be required init strike and withdrawing."
+          ]
+        },
+        {
+          "name": "issueAuthority",
+          "isMut": false,
+          "isSigner": false,
+          "isOptional": true,
+          "docs": [
+            "An authority that can be used for issuing tokens. Should be a PDA."
           ]
         },
         {
@@ -539,6 +655,10 @@
             "type": {
               "vec": "u64"
             }
+          },
+          {
+            "name": "issueAuthority",
+            "type": "publicKey"
           }
         ]
       }
@@ -584,6 +704,26 @@
       "code": 6007,
       "name": "NotEnoughTokens",
       "msg": "Not enough tokens to issue the SO"
+    },
+    {
+      "code": 6008,
+      "name": "IncorrectAuthority",
+      "msg": "Incorrect Authority"
+    },
+    {
+      "code": 6009,
+      "name": "TooManyStrikes",
+      "msg": "Too many strikes"
+    },
+    {
+      "code": 6010,
+      "name": "InvalidExpiration",
+      "msg": "Invalid expiration"
+    },
+    {
+      "code": 6011,
+      "name": "InvalidName",
+      "msg": "Invalid name"
     }
   ],
   "metadata": {
