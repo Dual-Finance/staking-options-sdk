@@ -168,7 +168,7 @@ export class StakingOptions {
     baseAccount: PublicKey,
     quoteMint: PublicKey,
     quoteAccount: PublicKey,
-    soAuthority?: PublicKey
+    soAuthority?: PublicKey,
   ): Promise<web3.TransactionInstruction> {
     const state = await this.state(name, baseMint);
     const baseVault = await this.baseVault(name, baseMint);
@@ -182,7 +182,7 @@ export class StakingOptions {
       {
         accounts: {
           authority,
-          soAuthority: soAuthority ? soAuthority : authority,
+          soAuthority: soAuthority || authority,
           state,
           baseVault,
           baseAccount,
