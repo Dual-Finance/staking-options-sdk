@@ -169,11 +169,12 @@ export class StakingOptions {
     quoteMint: PublicKey,
     quoteAccount: PublicKey,
     soAuthority?: PublicKey,
+    issueAuthority?: PublicKey,
   ): Promise<web3.TransactionInstruction> {
     const state = await this.state(name, baseMint);
     const baseVault = await this.baseVault(name, baseMint);
 
-    return this.program.instruction.config(
+    return this.program.instruction.configV2(
       new BN(optionExpiration),
       new BN(subscriptionPeriodEnd),
       numTokens,
@@ -183,6 +184,7 @@ export class StakingOptions {
         accounts: {
           authority,
           soAuthority: soAuthority || authority,
+          issueAuthority: issueAuthority || authority,
           state,
           baseVault,
           baseAccount,
