@@ -418,4 +418,11 @@ export class StakingOptions {
       },
     });
   }
+
+  /**
+   * Return the staking options IDL.
+   */
+  public getIdl() {
+    return this.program.idl;
+  }
 }

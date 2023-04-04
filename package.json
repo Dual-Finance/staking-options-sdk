@@ -1,6 +1,6 @@
 {
   "name": "@dual-finance/staking-options",
-  "version": "0.0.20",
+  "version": "0.0.21",
   "description": "Staking Options SDK",
   "main": "lib/index.js",
   "author": "Dual Finance",
