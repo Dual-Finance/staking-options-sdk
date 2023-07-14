@@ -26,6 +26,8 @@ import stakingOptionsIdl from './staking_options_idl.json';
 export const STAKING_OPTIONS_PK: PublicKey = new PublicKey('4yx1NJ4Vqf2zT1oVLk4SySBhhDJXmXFt88ncm4gPxtL7');
 export const DUAL_DAO_WALLET_PK: PublicKey = new PublicKey('7Z36Efbt7a4nLiV7s5bY7J2e4TJ6V9JEKGccsy2od2bE');
 
+// TODO: Export State type
+
 /**
  * API class with functions to interact with the Staking Options Program using Solana Web3 JS API
  */
