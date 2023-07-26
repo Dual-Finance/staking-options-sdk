@@ -550,7 +550,7 @@ export class StakingOptions {
     name: string,
     authority: PublicKey,
     baseAccount: PublicKey,
-    quoteAccount: PublicKey,
+    quoteAccount?: PublicKey,
   ): Promise<web3.TransactionInstruction> {
     const baseAccountData: Account = await getAccount(
       this.connection,
@@ -571,31 +571,33 @@ export class StakingOptions {
         quoteVault,
         'single',
       );
-
-      return this.program.instruction.withdrawAll({
-        accounts: {
-          authority,
-          state,
-          baseVault,
-          quoteVault,
-          baseAccount,
-          quoteAccount,
-          tokenProgram: TOKEN_PROGRAM_ID,
-          systemProgram: web3.SystemProgram.programId,
-        },
-      });
+      if (quoteAccount && quoteVault) {
+        return this.program.instruction.withdrawAll({
+          accounts: {
+            authority,
+            state,
+            baseVault,
+            quoteVault,
+            baseAccount,
+            quoteAccount,
+            tokenProgram: TOKEN_PROGRAM_ID,
+            systemProgram: web3.SystemProgram.programId,
+          },
+        });
+      }
     } catch (err) {
-      return this.program.instruction.withdraw({
-        accounts: {
-          authority,
-          state,
-          baseVault,
-          baseAccount,
-          tokenProgram: TOKEN_PROGRAM_ID,
-          systemProgram: web3.SystemProgram.programId,
-        },
-      });
+      console.log(err);
     }
+    return this.program.instruction.withdraw({
+      accounts: {
+        authority,
+        state,
+        baseVault,
+        baseAccount,
+        tokenProgram: TOKEN_PROGRAM_ID,
+        systemProgram: web3.SystemProgram.programId,
+      },
+    });
   }
 
   /**
