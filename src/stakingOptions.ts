@@ -455,8 +455,7 @@ export class StakingOptions {
       'single',
     )).mint;
 
-    const reverseOptionMint: PublicKey = await this.reverseSoMint(
-      Number(strike), name, baseMint);
+    const reverseOptionMint: PublicKey = await this.reverseSoMint(Number(strike), name, baseMint);
 
     const baseVault = await this.baseVault(name, baseMint);
     const quoteVault = await this.quoteVault(name, baseMint);
@@ -513,8 +512,7 @@ export class StakingOptions {
       'single',
     )).mint;
 
-    const reverseOptionMint: PublicKey = await this.reverseSoMint(
-      Number(strike), name, baseMint);
+    const reverseOptionMint: PublicKey = await this.reverseSoMint(Number(strike), name, baseMint);
 
     const baseVault = await this.baseVault(name, baseMint);
     const quoteVault = await this.quoteVault(name, baseMint);
