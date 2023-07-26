@@ -129,6 +129,27 @@ export class StakingOptions {
   }
 
   /**
+   * Get the public key for a reverse staking option mint. This is the option
+   * token for the reverse option.
+   */
+  public async reverseSoMint(
+    strike: number,
+    name: string,
+    baseMint: PublicKey,
+  ): Promise<PublicKey> {
+    const state = await this.state(name, baseMint);
+    const [reverseOptionMint, _reverseOptionMintBump] = await web3.PublicKey.findProgramAddress(
+      [
+        Buffer.from(utils.bytes.utf8.encode('reverse-so-mint')),
+        state.toBuffer(),
+        StakingOptions.toBeBytes(strike),
+      ],
+      this.program.programId,
+    );
+    return reverseOptionMint;
+  }
+
+  /**
    * Get the public key for a staking option vault. This is where the base tokens
    * are stored.
    */
@@ -142,6 +163,22 @@ export class StakingOptions {
       this.program.programId,
     );
     return baseVault;
+  }
+
+  /**
+   * Get the public key for a staking option vault. This is where the quote tokens
+   * are stored when using a reversible option.
+   */
+  public async quoteVault(name: string, baseMint: PublicKey) {
+    const [quoteVault, _quoteVaultBump] = await web3.PublicKey.findProgramAddress(
+      [
+        Buffer.from(utils.bytes.utf8.encode('so-reverse-vault')),
+        Buffer.from(utils.bytes.utf8.encode(name)),
+        baseMint.toBuffer(),
+      ],
+      this.program.programId,
+    );
+    return quoteVault;
   }
 
   /**
@@ -175,8 +212,9 @@ export class StakingOptions {
   ): Promise<web3.TransactionInstruction> {
     const state = await this.state(name, baseMint);
     const baseVault = await this.baseVault(name, baseMint);
+    const quoteVault = await this.quoteVault(name, baseMint);
 
-    return this.program.instruction.configV2(
+    return this.program.instruction.configV3(
       new BN(optionExpiration),
       new BN(subscriptionPeriodEnd),
       numTokens,
@@ -189,6 +227,7 @@ export class StakingOptions {
           issueAuthority: issueAuthority || authority,
           state,
           baseVault,
+          quoteVault,
           baseAccount,
           quoteAccount,
           baseMint,
@@ -217,6 +256,31 @@ export class StakingOptions {
         authority,
         state,
         optionMint,
+        tokenProgram: TOKEN_PROGRAM_ID,
+        systemProgram: web3.SystemProgram.programId,
+        rent: web3.SYSVAR_RENT_PUBKEY,
+      },
+    });
+  }
+
+  /**
+   * Create an instruction for init strike reversible
+   */
+  public async createInitStrikeReversibleInstruction(
+    strike: BN,
+    name: string,
+    authority: PublicKey,
+    baseMint: PublicKey,
+  ): Promise<web3.TransactionInstruction> {
+    const state = await this.state(name, baseMint);
+    const optionMint = await this.soMint(strike, name, baseMint);
+    const reverseOptionMint = await this.reverseSoMint(strike, name, baseMint);
+    return this.program.instruction.initStrikeReversible(strike, {
+      accounts: {
+        authority,
+        state,
+        optionMint,
+        reverseOptionMint,
         tokenProgram: TOKEN_PROGRAM_ID,
         systemProgram: web3.SystemProgram.programId,
         rent: web3.SYSVAR_RENT_PUBKEY,
@@ -366,12 +430,123 @@ export class StakingOptions {
   }
 
   /**
+   * Create an instruction for exercise which can be reversed. Must follow an
+   * initStrikeReversible.
+   */
+  public async createExerciseReversibleInstruction(
+    amount: BN,
+    strike: BN,
+    name: string,
+    authority: PublicKey,
+    userSoAccount: PublicKey,
+    userReverseSoAccount: PublicKey,
+    userQuoteAccount: PublicKey,
+    userBaseAccount: PublicKey,
+  ): Promise<web3.TransactionInstruction> {
+    const baseAccountData: Account = await getAccount(
+      this.connection,
+      userBaseAccount,
+      'single',
+    );
+    const baseMint = baseAccountData.mint;
+
+    const state = await this.state(name, baseMint);
+    const stateObj = await this.getState(name, baseMint);
+
+    const optionMint: PublicKey = (await getAccount(
+      this.connection,
+      userSoAccount,
+      'single',
+    )).mint;
+
+    const reverseOptionMint: PublicKey = await this.reverseSoMint(Number(strike), name, baseMint);
+
+    const baseVault = await this.baseVault(name, baseMint);
+    const quoteVault = await this.quoteVault(name, baseMint);
+
+    const { quoteAccount } = stateObj;
+
+    return this.program.instruction.exerciseReversible(amount, strike, {
+      accounts: {
+        authority,
+        state,
+        userSoAccount,
+        userReverseSoAccount,
+        optionMint,
+        reverseOptionMint,
+        userQuoteAccount,
+        projectQuoteAccount: quoteAccount,
+        baseVault,
+        quoteVault,
+        userBaseAccount,
+        tokenProgram: TOKEN_PROGRAM_ID,
+      },
+    });
+  }
+
+  /**
+   * Create an instruction for a reverse exercise. This undoes a previous
+   * exerciseReversible.
+   */
+  public async createReverseExerciseInstruction(
+    amount: BN,
+    strike: BN,
+    name: string,
+    authority: PublicKey,
+    userSoAccount: PublicKey,
+    userReverseSoAccount: PublicKey,
+    userQuoteAccount: PublicKey,
+    userBaseAccount: PublicKey,
+  ): Promise<web3.TransactionInstruction> {
+    const baseAccountData: Account = await getAccount(
+      this.connection,
+      userBaseAccount,
+      'single',
+    );
+    const baseMint = baseAccountData.mint;
+
+    const state = await this.state(name, baseMint);
+    const stateObj = await this.getState(name, baseMint);
+
+    const optionMint: PublicKey = (await getAccount(
+      this.connection,
+      userSoAccount,
+      'single',
+    )).mint;
+
+    const reverseOptionMint: PublicKey = await this.reverseSoMint(Number(strike), name, baseMint);
+
+    const baseVault = await this.baseVault(name, baseMint);
+    const quoteVault = await this.quoteVault(name, baseMint);
+
+    const { quoteAccount } = stateObj;
+
+    return this.program.instruction.reverseExercise(amount, strike, {
+      accounts: {
+        authority,
+        state,
+        userSoAccount,
+        userReverseSoAccount,
+        optionMint,
+        reverseOptionMint,
+        userQuoteAccount,
+        projectQuoteAccount: quoteAccount,
+        baseVault,
+        quoteVault,
+        userBaseAccount,
+        tokenProgram: TOKEN_PROGRAM_ID,
+      },
+    });
+  }
+
+  /**
    * Create an instruction for withdraw
    */
   public async createWithdrawInstruction(
     name: string,
     authority: PublicKey,
     baseAccount: PublicKey,
+    quoteAccount?: PublicKey,
   ): Promise<web3.TransactionInstruction> {
     const baseAccountData: Account = await getAccount(
       this.connection,
@@ -383,6 +558,39 @@ export class StakingOptions {
     const state = await this.state(name, baseMint);
     const baseVault = await this.baseVault(name, baseMint);
 
+    try {
+      // If the quote vault exists, use the withdrawAll.
+      const quoteVault = await this.quoteVault(name, baseMint);
+      await getAccount(
+        this.connection,
+        quoteVault,
+        'single',
+      );
+
+      if (quoteAccount && quoteVault) {
+        const quoteMint: PublicKey = (await getAccount(
+          this.connection,
+          quoteAccount,
+          'single',
+        )).mint;
+        const feeQuoteAccount = await StakingOptions.getFeeAccount(quoteMint);
+        return this.program.instruction.withdrawAll({
+          accounts: {
+            authority,
+            state,
+            baseVault,
+            quoteVault,
+            baseAccount,
+            quoteAccount,
+            feeQuoteAccount,
+            tokenProgram: TOKEN_PROGRAM_ID,
+            systemProgram: web3.SystemProgram.programId,
+          },
+        });
+      }
+    } catch (err) {
+      console.log(err);
+    }
     return this.program.instruction.withdraw({
       accounts: {
         authority,
