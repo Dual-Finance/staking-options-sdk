@@ -428,7 +428,8 @@ export class StakingOptions {
   }
 
   /**
-   * Create an instruction for exercise
+   * Create an instruction for exercise which can be reversed. Must follow an
+   * initStrikeReversible.
    */
   public async createExerciseReversibleInstruction(
     amount: BN,
@@ -485,7 +486,8 @@ export class StakingOptions {
   }
 
   /**
-   * Create an instruction for exercise
+   * Create an instruction for a reverse exercise. This undoes a previous
+   * exerciseReversible.
    */
   public async createReverseExerciseInstruction(
     amount: BN,
