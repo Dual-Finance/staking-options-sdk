@@ -273,11 +273,12 @@ export class StakingOptions {
     const state = await this.state(name, baseMint);
     const optionMint = await this.soMint(strike, name, baseMint);
     const reverseOptionMint = await this.reverseSoMint(strike, name, baseMint);
-    return this.program.instruction.initStrike(strike, {
+    return this.program.instruction.initStrikeReversible(strike, {
       accounts: {
         authority,
         state,
         optionMint,
+        reverseOptionMint,
         tokenProgram: TOKEN_PROGRAM_ID,
         systemProgram: web3.SystemProgram.programId,
         rent: web3.SYSVAR_RENT_PUBKEY,
