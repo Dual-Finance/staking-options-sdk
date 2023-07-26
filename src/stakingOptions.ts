@@ -463,8 +463,6 @@ export class StakingOptions {
     const quoteVault = await this.quoteVault(name, baseMint);
 
     const { quoteAccount } = stateObj;
-    const { quoteMint } = stateObj;
-    const feeQuoteAccount = await StakingOptions.getFeeAccount(quoteMint);
 
     return this.program.instruction.exerciseReversible(amount, strike, {
       accounts: {
@@ -476,7 +474,6 @@ export class StakingOptions {
         reverseOptionMint,
         userQuoteAccount,
         projectQuoteAccount: quoteAccount,
-        feeQuoteAccount,
         baseVault,
         quoteVault,
         userBaseAccount,
@@ -521,8 +518,6 @@ export class StakingOptions {
     const quoteVault = await this.quoteVault(name, baseMint);
 
     const { quoteAccount } = stateObj;
-    const { quoteMint } = stateObj;
-    const feeQuoteAccount = await StakingOptions.getFeeAccount(quoteMint);
 
     return this.program.instruction.reverseExercise(amount, strike, {
       accounts: {
@@ -534,7 +529,6 @@ export class StakingOptions {
         reverseOptionMint,
         userQuoteAccount,
         projectQuoteAccount: quoteAccount,
-        feeQuoteAccount,
         baseVault,
         quoteVault,
         userBaseAccount,
@@ -565,13 +559,19 @@ export class StakingOptions {
     try {
       // If the quote vault exists, use the withdrawAll.
       const quoteVault = await this.quoteVault(name, baseMint);
-
       await getAccount(
         this.connection,
         quoteVault,
         'single',
       );
+
       if (quoteAccount && quoteVault) {
+        const quoteMint: PublicKey = (await getAccount(
+          this.connection,
+          quoteAccount,
+          'single',
+        )).mint;
+        const feeQuoteAccount = await StakingOptions.getFeeAccount(quoteMint);
         return this.program.instruction.withdrawAll({
           accounts: {
             authority,
@@ -580,6 +580,7 @@ export class StakingOptions {
             quoteVault,
             baseAccount,
             quoteAccount,
+            feeQuoteAccount,
             tokenProgram: TOKEN_PROGRAM_ID,
             systemProgram: web3.SystemProgram.programId,
           },
