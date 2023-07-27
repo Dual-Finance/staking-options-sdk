@@ -278,6 +278,7 @@ export class StakingOptions {
     return this.program.instruction.initStrikeReversible(strike, {
       accounts: {
         authority,
+        payer: authority,
         state,
         optionMint,
         reverseOptionMint,
