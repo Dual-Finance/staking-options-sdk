@@ -140,7 +140,7 @@ export class StakingOptions {
     const state = await this.state(name, baseMint);
     const [reverseOptionMint, _reverseOptionMintBump] = await web3.PublicKey.findProgramAddress(
       [
-        Buffer.from(utils.bytes.utf8.encode('reverse-so-mint')),
+        Buffer.from(utils.bytes.utf8.encode('so-reverse-mint')),
         state.toBuffer(),
         StakingOptions.toBeBytes(strike),
       ],
