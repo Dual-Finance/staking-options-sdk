@@ -582,16 +582,12 @@ export class StakingOptions {
     try {
       // If the quote vault exists, use the withdrawAll.
       const quoteVault = await this.quoteVault(name, baseMint);
-      await getAccount(
-        this.connection,
-        quoteVault,
-        'single',
-      );
 
-      if (quoteAccount && quoteVault) {
+
+      if (quoteAccount) {
         const quoteMint: PublicKey = (await getAccount(
           this.connection,
-          quoteAccount,
+          quoteVault,
           'single',
         )).mint;
         const feeQuoteAccount = await StakingOptions.getFeeAccount(quoteMint);
