@@ -555,7 +555,27 @@ export class StakingOptions {
       'single',
     );
     const baseMint = baseAccountData.mint;
+    return this.createWithdrawInstructionWithMint(
+      name,
+      authority,
+      baseAccount,
+      baseMint,
+      quoteAccount,
+    );
+  }
 
+  /**
+   * Create an instruction for withdraw with the mint as a param. This is needed
+   * when the recipient account is created in another instruction in this
+   * transaction, so we cannot check it onchain to get the mint.
+   */
+  public async createWithdrawInstructionWithMint(
+    name: string,
+    authority: PublicKey,
+    baseAccount: PublicKey,
+    baseMint: PublicKey,
+    quoteAccount?: PublicKey,
+  ): Promise<web3.TransactionInstruction> {
     const state = await this.state(name, baseMint);
     const baseVault = await this.baseVault(name, baseMint);
 
@@ -592,32 +612,6 @@ export class StakingOptions {
     } catch (err) {
       console.log(err);
     }
-    return this.program.instruction.withdraw({
-      accounts: {
-        authority,
-        state,
-        baseVault,
-        baseAccount,
-        tokenProgram: TOKEN_PROGRAM_ID,
-        systemProgram: web3.SystemProgram.programId,
-      },
-    });
-  }
-
-  /**
-   * Create an instruction for withdraw with the mint as a param. This is needed
-   * when the recipient account is created in another instruction in this
-   * transaction, so we cannot check it onchain to get the mint.
-   */
-  public async createWithdrawInstructionWithMint(
-    name: string,
-    authority: PublicKey,
-    baseAccount: PublicKey,
-    baseMint: PublicKey,
-  ): Promise<web3.TransactionInstruction> {
-    const state = await this.state(name, baseMint);
-    const baseVault = await this.baseVault(name, baseMint);
-
     return this.program.instruction.withdraw({
       accounts: {
         authority,
