@@ -20,10 +20,9 @@ import {
   BN,
   Program,
   Wallet,
-  Idl,
   utils,
 } from '@project-serum/anchor';
-import stakingOptionsIdl from './staking_options_idl.json';
+import stakingOptionsIdl, { StakingOptionsIdl } from './idl';
 
 export const STAKING_OPTIONS_PK = new PublicKey(
   '4yx1NJ4Vqf2zT1oVLk4SySBhhDJXmXFt88ncm4gPxtL7',
@@ -33,15 +32,13 @@ export const DUAL_DAO_WALLET_PK = new PublicKey(
   '7Z36Efbt7a4nLiV7s5bY7J2e4TJ6V9JEKGccsy2od2bE',
 );
 
-// TODO: Export State type
-
 /**
  * API class with functions to interact with the Staking Options Program using Solana Web3 JS API
  */
 export class StakingOptions {
   private connection: Connection;
 
-  private program: Program;
+  private program: Program<StakingOptionsIdl>;
 
   private commitment: Commitment | ConnectionConfig;
 
@@ -67,8 +64,7 @@ export class StakingOptions {
 
     const provider = new AnchorProvider(this.connection, wallet, opts);
     this.program = new Program(
-      // @ts-ignore
-      stakingOptionsIdl as Idl,
+      stakingOptionsIdl,
       STAKING_OPTIONS_PK,
       provider,
     );
