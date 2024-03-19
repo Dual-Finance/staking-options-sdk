@@ -33,6 +33,8 @@ export const DUAL_DAO_WALLET_PK = new PublicKey(
   '7Z36Efbt7a4nLiV7s5bY7J2e4TJ6V9JEKGccsy2od2bE',
 );
 
+// TODO: Export State type
+
 /**
  * API class with functions to interact with the Staking Options Program using Solana Web3 JS API
  */
