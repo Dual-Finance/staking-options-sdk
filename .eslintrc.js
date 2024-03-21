@@ -26,4 +26,5 @@ module.exports = {
     'no-promise-executor-return': 0,
     'no-unused-vars': 0,
   },
+  ignorePatterns: ['**/idl/*.ts'],
 };
