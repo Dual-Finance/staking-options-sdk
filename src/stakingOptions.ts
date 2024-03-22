@@ -8,9 +8,11 @@ import {
   SYSVAR_RENT_PUBKEY,
   SystemProgram,
   TransactionInstruction,
+  Transaction,
 } from '@solana/web3.js';
 import {
   Account,
+  createAssociatedTokenAccountInstruction,
   getAccount,
   getAssociatedTokenAddressSync,
   TOKEN_PROGRAM_ID,
@@ -59,10 +61,8 @@ export class StakingOptions {
       commitment: 'finalized',
     };
 
-    // Public key and payer not actually needed since this does not send transactions.
-    const wallet: Wallet = new Wallet(Keypair.generate());
-
-    const provider = new AnchorProvider(this.connection, wallet, opts);
+    // Wallet not actually needed since this does not send transactions.
+    const provider = new AnchorProvider(this.connection, {} as Wallet, opts);
     this.program = new Program(
       stakingOptionsIdl,
       STAKING_OPTIONS_PK,
@@ -239,6 +239,49 @@ export class StakingOptions {
   }
 
   /**
+   * Creates a transaction for config that includes setup instructions
+   */
+  public async createConfigTransaction(
+    optionExpiration: number,
+    subscriptionPeriodEnd: number,
+    numTokens: BN,
+    lotSize: BN,
+    name: string,
+    authority: PublicKey,
+    baseMint: PublicKey,
+    baseAccount: PublicKey,
+    quoteMint: PublicKey,
+    quoteAccount: PublicKey,
+    soAuthority?: PublicKey,
+    issueAuthority?: PublicKey,
+  ): Promise<Transaction> {
+    const transaction = new Transaction();
+    if (!(await this.connection.getAccountInfo(quoteAccount))) {
+      transaction.add(
+        createAssociatedTokenAccountInstruction(authority, quoteAccount, authority, quoteMint),
+      );
+    }
+
+    const configIx = await this.createConfigInstruction(
+      optionExpiration,
+      subscriptionPeriodEnd,
+      numTokens,
+      lotSize,
+      name,
+      authority,
+      baseMint,
+      baseAccount,
+      quoteMint,
+      quoteAccount,
+      soAuthority,
+      issueAuthority,
+    );
+    transaction.add(configIx);
+
+    return transaction;
+  }
+
+  /**
    * Create an instruction for init strike
    */
   public async createInitStrikeInstruction(
@@ -346,6 +389,40 @@ export class StakingOptions {
         tokenProgram: TOKEN_PROGRAM_ID,
       },
     });
+  }
+
+  /**
+   * Create a transaction for issue that includes setup instructions
+   */
+  public async createIssueTransaction(
+    amount: BN,
+    strike: BN,
+    name: string,
+    authority: PublicKey,
+    baseMint: PublicKey,
+    recipient: PublicKey,
+  ): Promise<Transaction> {
+    const optionMint = this.soMint(strike, name, baseMint);
+    const userSoAccount = getAssociatedTokenAddressSync(optionMint, recipient, true);
+    const transaction = new Transaction();
+
+    if (!(await this.connection.getAccountInfo(userSoAccount))) {
+      transaction.add(
+        createAssociatedTokenAccountInstruction(authority, userSoAccount, recipient, optionMint),
+      );
+    }
+
+    const issueIx = await this.createIssueInstruction(
+      amount,
+      strike,
+      name,
+      authority,
+      baseMint,
+      userSoAccount,
+    );
+    transaction.add(issueIx);
+
+    return transaction;
   }
 
   /**
