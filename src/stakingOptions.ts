@@ -3,7 +3,6 @@ import {
   ConfirmOptions,
   Connection,
   ConnectionConfig,
-  Keypair,
   PublicKey,
   SYSVAR_RENT_PUBKEY,
   SystemProgram,
@@ -12,7 +11,7 @@ import {
 } from '@solana/web3.js';
 import {
   Account,
-  createAssociatedTokenAccountInstruction,
+  createAssociatedTokenAccountIdempotentInstruction,
   getAccount,
   getAssociatedTokenAddressSync,
   TOKEN_PROGRAM_ID,
@@ -238,9 +237,6 @@ export class StakingOptions {
     );
   }
 
-  /**
-   * Creates a transaction for config that includes setup instructions
-   */
   public async createConfigTransaction(
     optionExpiration: number,
     subscriptionPeriodEnd: number,
@@ -256,11 +252,14 @@ export class StakingOptions {
     issueAuthority?: PublicKey,
   ): Promise<Transaction> {
     const transaction = new Transaction();
-    if (!(await this.connection.getAccountInfo(quoteAccount))) {
-      transaction.add(
-        createAssociatedTokenAccountInstruction(authority, quoteAccount, authority, quoteMint),
-      );
-    }
+    transaction.add(
+      createAssociatedTokenAccountIdempotentInstruction(
+        authority,
+        quoteAccount,
+        authority,
+        quoteMint,
+      ),
+    );
 
     const configIx = await this.createConfigInstruction(
       optionExpiration,
@@ -391,9 +390,6 @@ export class StakingOptions {
     });
   }
 
-  /**
-   * Create a transaction for issue that includes setup instructions
-   */
   public async createIssueTransaction(
     amount: BN,
     strike: BN,
@@ -406,11 +402,14 @@ export class StakingOptions {
     const userSoAccount = getAssociatedTokenAddressSync(optionMint, recipient, true);
     const transaction = new Transaction();
 
-    if (!(await this.connection.getAccountInfo(userSoAccount))) {
-      transaction.add(
-        createAssociatedTokenAccountInstruction(authority, userSoAccount, recipient, optionMint),
-      );
-    }
+    transaction.add(
+      createAssociatedTokenAccountIdempotentInstruction(
+        authority,
+        userSoAccount,
+        recipient,
+        optionMint,
+      ),
+    );
 
     const issueIx = await this.createIssueInstruction(
       amount,
