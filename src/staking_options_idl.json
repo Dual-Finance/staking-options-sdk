@@ -1,5 +1,5 @@
 {
-  "version": "0.1.0",
+  "version": "0.1.1",
   "name": "staking_options",
   "instructions": [
     {
@@ -1015,6 +1015,46 @@
         }
       ],
       "args": []
+    },
+    {
+      "name": "modifyExpiration",
+      "accounts": [
+        {
+          "name": "authority",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "state",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "State holding all the data for the stake that the staker wants to do."
+          ]
+        },
+        {
+          "name": "userSoAccount",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "User must have all the outstanding staking options for the SO mint."
+          ]
+        },
+        {
+          "name": "optionMint",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "Mint is needed to get the number of outstanding options."
+          ]
+        }
+      ],
+      "args": [
+        {
+          "name": "newExpirationUnixSec",
+          "type": "u64"
+        }
+      ]
     }
   ],
   "accounts": [
@@ -1150,8 +1190,5 @@
       "name": "InvalidName",
       "msg": "Invalid name"
     }
-  ],
-  "metadata": {
-    "address": "4yx1NJ4Vqf2zT1oVLk4SySBhhDJXmXFt88ncm4gPxtL7"
-  }
+  ]
 }
