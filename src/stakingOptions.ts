@@ -621,6 +621,41 @@ export class StakingOptions {
   }
 
   /**
+   * Create an instruction for modification of the expiration time
+   */
+  public async createModifyExpiryInstruction(
+    newExpiration: number,
+    name: string,
+    authority: PublicKey,
+    userSoAccount: PublicKey,
+    userBaseAccount: PublicKey,
+  ): Promise<web3.TransactionInstruction> {
+    const baseAccountData: Account = await getAccount(
+      this.connection,
+      userBaseAccount,
+      'single',
+    );
+    const baseMint = baseAccountData.mint;
+
+    const state = await this.state(name, baseMint);
+
+    const optionMint: PublicKey = (await getAccount(
+      this.connection,
+      userSoAccount,
+      'single',
+    )).mint;
+
+    return this.program.instruction.modifyExpiration(new BN(newExpiration), {
+      accounts: {
+        authority,
+        state,
+        userSoAccount,
+        optionMint,
+      },
+    });
+  }
+
+  /**
    * Return the staking options IDL.
    */
   public getIdl() {
